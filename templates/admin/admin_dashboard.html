@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard | Smart Traffic</title>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body { font-family: Arial, sans-serif; background:#f4f6f9; }
+.container { padding:25px; }
+
+.cards {
+    display:flex;
+    gap:20px;
+    margin-bottom:30px;
+}
+.card {
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    width:220px;
+    text-align:center;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.charts {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+    margin-top:20px;
+}
+
+.chart-box {
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    height:350px;
+}
+
+canvas {
+    width:100% !important;
+    height:260px !important;
+}
+
+table {
+    width:100%;
+    margin-top:30px;
+    border-collapse:collapse;
+    background:white;
+}
+th,td {
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+th {
+    background:#2563eb;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🚦 Traffic Control Center (Admin)</h1>
+
+<!-- SUMMARY -->
+<div class="cards">
+    <div class="card">
+        <h3>Total Junctions</h3>
+        <p>{{ total_junctions }}</p>
+    </div>
+    <div class="card">
+        <h3>Avg Wait Time</h3>
+        <p>{{ avg_wait_time }} sec</p>
+    </div>
+    <div class="card">
+        <h3>System Efficiency</h3>
+        <p>{{ system_efficiency }}%</p>
+    </div>
+</div>
+
+<!-- CHARTS -->
+<div class="charts">
+    <div class="chart-box">
+        <h3>Traffic Volume</h3>
+        <canvas id="trafficChart"></canvas>
+    </div>
+    <div class="chart-box">
+        <h3>Wait Time</h3>
+        <canvas id="waitChart"></canvas>
+    </div>
+</div>
+
+<!-- ALERTS -->
+<h2 style="margin-top:30px;">🚨 Live Alerts</h2>
+<table>
+<tr>
+    <th>Type</th>
+    <th>Message</th>
+    <th>Time</th>
+</tr>
+{% for a in alerts %}
+<tr>
+    <td>{{ a.type }}</td>
+    <td>{{ a.message }}</td>
+    <td>{{ a.time }}</td>
+</tr>
+{% endfor %}
+</table>
+
+</div>
+
+<script>
+const junctionNames = {{ junction_names | tojson | safe }};
+const trafficValues = {{ traffic_values | tojson | safe }};
+const waitTimes = {{ wait_times | tojson | safe }};
+const alertsData = {{ alerts | tojson | safe }};
+</script>
+
+<!-- 🔥 CHARTS -->
+<script>
+new Chart(document.getElementById("trafficChart"), {
+    type: "bar",
+    data: {
+        labels: junctionNames,
+        datasets: [{
+            label: "Vehicles",
+            data: trafficValues,
+            backgroundColor: "#4CAF50"
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+new Chart(document.getElementById("waitChart"), {
+    type: "line",
+    data: {
+        labels: junctionNames,
+        datasets: [{
+            label: "Wait Time (sec)",
+            data: waitTimes,
+            borderColor: "#ff5722",
+            backgroundColor: "rgba(255,87,34,0.2)",
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+
+
+</body>
+</html>

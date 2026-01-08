@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SmartTraffic – User Dashboard</title>
+
+<button id="voiceBtn" onclick="activateVoiceAssistant()" style="
+    padding:10px 16px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    margin-bottom:20px;
+">
+    🎙 Voice Assistant
+</button>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eef2f7;
+}
+
+.header {
+    background: white;
+    padding: 18px 30px;
+    border-bottom: 1px solid #ddd;
+    font-size: 22px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tabs {
+    display: flex;
+    background: #1e3a8a;
+}
+.tabs button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    background: #1e3a8a;
+    color: white;
+    cursor: pointer;
+}
+.tabs button.active {
+    background: #2563eb;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+    padding: 35px 45px;
+}
+.tab-content.active {
+    display: block;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 35px;
+    margin-bottom: 40px;
+}
+
+.card {
+    background: white;
+    padding: 24px 26px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+th {
+    background: #2563eb;
+    color: white;
+}
+
+.alert {
+    padding: 12px;
+    border-left: 5px solid #f97316;
+    background: #fff7ed;
+    margin-bottom: 12px;
+    border-radius: 6px;
+}
+
+iframe {
+    width: 100%;
+    height: 320px;
+    border-radius: 8px;
+    border: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    🚦 SmartTraffic – User Dashboard
+    <small>
+        Last updated: <span id="time"></span>
+    </small>
+</div>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="openTab('overview', this)">Traffic Overview</button>
+    <button class="tab-btn" onclick="openTab('route', this)">Route Planning</button>
+    <button class="tab-btn" onclick="openTab('notify', this)">Notifications</button>
+</div>
+
+<!-- ================= OVERVIEW ================= -->
+<div id="overview" class="tab-content active">
+<div class="grid">
+<div class="card">
+<h3>🚥 Traffic Status</h3>
+<table>
+<tr><th>Junction</th><th>Vehicles</th><th>Wait (sec)</th></tr>
+<tr><td>East Lane</td><td>120</td><td>45</td></tr>
+<tr><td>West Lane</td><td>200</td><td>80</td></tr>
+<tr><td>North Lane</td><td>90</td><td>35</td></tr>
+<tr><td>South Lane</td><td>150</td><td>60</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>🗺 Junction Location</h3>
+<iframe src="https://maps.google.com/maps?q=Vijayawada&t=&z=12&output=embed"></iframe>
+</div>
+</div>
+</div>
+
+<!-- ================= ROUTE ================= -->
+<div id="route" class="tab-content">
+<div class="grid">
+<div class="card">
+<h3>🧭 Route Planning</h3>
+<input placeholder="From">
+<input placeholder="To">
+
+<button style="padding:12px;background:#2563eb;color:white;border:none;border-radius:6px;">
+Get Directions
+</button>
+
+<p id="eta" style="margin-top:12px;font-weight:bold;color:#2563eb;">
+⏱ Estimated Travel Time: --
+</p>
+
+<hr style="margin:20px 0;">
+
+<h3>✅ Route Recommendations</h3>
+<ul>
+<li>Main St → Oak St → Park Ave</li>
+<li>Broadway → Central → 5th St</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ================= NOTIFICATIONS ================= -->
+<div id="notify" class="tab-content">
+<div class="grid">
+<div class="card">
+<h3>⚙ Notification Settings</h3>
+
+<!-- 🔥 EMAIL ALERT TOGGLE -->
+<label>
+<input type="checkbox" id="emailToggle" onchange="toggleEmailAlerts(this.checked)">
+Enable Email Alerts
+</label>
+
+<p style="color:#666;font-size:13px;">
+(User controlled – backend synced)
+</p>
+</div>
+
+<div class="card">
+<h3>🔔 Notification History</h3>
+
+<div class="alert">
+Heavy traffic on Broadway
+<br><small>🕒 <span class="alertTime"></span></small>
+</div>
+
+<div class="alert">
+Emergency vehicle detected
+<br><small>🕒 <span class="alertTime"></span></small>
+</div>
+
+<div id="autoAlerts"></div>
+</div>
+</div>
+</div>
+
+<script>
+function openTab(tabId, btn) {
+document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.getElementById(tabId).classList.add('active');
+btn.classList.add('active');
+}
+
+document.getElementById("time").innerText = new Date().toLocaleTimeString();
+
+document.getElementById("eta").innerText =
+"⏱ Estimated Travel Time: " + (5 + Math.floor(Math.random()*20)) + " mins";
+
+document.querySelectorAll(".alertTime").forEach(e=>{
+e.innerText = new Date().toLocaleTimeString();
+});
+
+// 🔥 FAKE ALERTS
+const fakeAlerts = [
+"High congestion at East Lane",
+"Accident cleared at West Lane",
+"Emergency vehicle approaching",
+"Alternate route suggested"
+];
+
+setInterval(()=>{
+let box=document.getElementById("autoAlerts");
+let d=document.createElement("div");
+d.className="alert";
+d.innerHTML=fakeAlerts[Math.floor(Math.random()*fakeAlerts.length)] +
+"<br><small>🕒 "+new Date().toLocaleTimeString()+"</small>";
+box.prepend(d);
+if(box.children.length>4) box.removeChild(box.lastChild);
+},8000);
+
+// 🔥 VOICE ASSISTANT
+
+function activateVoiceAssistant() {
+
+    if (!('speechSynthesis' in window)) {
+        alert("Voice assistant not supported in this browser");
+        return;
+    }
+
+    const alertElements = document.querySelectorAll(".alert");
+    let messages = [];
+
+    alertElements.forEach((el, index) => {
+        if (index < 2) {   // speak only latest 2 alerts (clean & short)
+            messages.push(el.innerText.replace(/\s+/g, ' '));
+        }
+    });
+
+    let finalMessage;
+
+    if (messages.length === 0) {
+        finalMessage = "Traffic is clear. No alerts right now.";
+    } else {
+        finalMessage =
+            "Attention please. " +
+            messages.join(". ") +
+            ". Drive safely.";
+    }
+
+    const speech = new SpeechSynthesisUtterance(finalMessage);
+    speech.rate = 0.95;     // natural speed
+    speech.pitch = 1;
+    speech.volume = 1;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(speech);
+}
+
+
+// 🔥 EMAIL TOGGLE → BACKEND
+function toggleEmailAlerts(enabled){
+fetch("/toggle-email-alerts",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({ enabled: enabled })
+});
+}
+</script>
+
+</body>
+</html>

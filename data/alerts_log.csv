@@ -1,0 +1,8 @@
+type,message,time
+CONGESTION,High congestion at West lane North,11:19:49
+AMBULANCE,"🚑 Ambulance detected, please clear the lane",11:19:50
+FIRE ENGINE,"🚑 Fire Engine detected, please clear the lane",11:19:50
+CONGESTION,High congestion at East lane South,12:20:49
+AMBULANCE,🚑 Emergency override activated at East Lane,NOW
+AMBULANCE,🚑 Emergency override activated at East Lane,NOW
+AMBULANCE,🚑 Emergency override activated at North Lane,NOW
