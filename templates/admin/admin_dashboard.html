@@ -71,15 +71,15 @@ th {
 <div class="cards">
     <div class="card">
         <h3>Total Junctions</h3>
-        <p>{{ total_junctions }}</p>
+        <p id="totalJunctions">{{ total_junctions }}</p>
     </div>
     <div class="card">
         <h3>Avg Wait Time</h3>
-        <p>{{ avg_wait_time }} sec</p>
+        <p id="avgWait">{{ avg_wait_time }} sec</p>
     </div>
     <div class="card">
         <h3>System Efficiency</h3>
-        <p>{{ system_efficiency }}%</p>
+        <p id="efficiency">{{ system_efficiency }}%</p>
     </div>
 </div>
 
@@ -123,7 +123,7 @@ const alertsData = {{ alerts | tojson | safe }};
 
 <!-- 🔥 CHARTS -->
 <script>
-new Chart(document.getElementById("trafficChart"), {
+const trafficChart = new Chart(document.getElementById("trafficChart"), {
     type: "bar",
     data: {
         labels: junctionNames,
@@ -139,7 +139,7 @@ new Chart(document.getElementById("trafficChart"), {
     }
 });
 
-new Chart(document.getElementById("waitChart"), {
+const waitChart = new Chart(document.getElementById("waitChart"), {
     type: "line",
     data: {
         labels: junctionNames,
@@ -157,6 +157,49 @@ new Chart(document.getElementById("waitChart"), {
         maintainAspectRatio: false
     }
 });
+</script>
+<script>
+function trafficFactor() {
+    const h = new Date().getHours();
+    if (h >= 8 && h <= 11) return 1.5;   // morning rush
+    if (h >= 17 && h <= 20) return 1.7;  // evening peak
+    if (h >= 12 && h <= 16) return 1.2;  // normal
+    return 0.7;                          // night
+}
+
+function updateAdminDashboard() {
+    const factor = trafficFactor();
+
+    // 🔄 Update Traffic Volume
+    trafficChart.data.datasets[0].data =
+        trafficChart.data.datasets[0].data.map(
+            () => Math.floor((80 + Math.random()*120) * factor)
+        );
+    trafficChart.update();
+
+    // 🔄 Update Wait Time
+    waitChart.data.datasets[0].data =
+        waitChart.data.datasets[0].data.map(
+            v => Math.max(20, Math.floor(v + (Math.random()*10 - 5)))
+        );
+    waitChart.update();
+
+    // 🔢 Avg wait calculation
+    const avg =
+        Math.floor(
+            waitChart.data.datasets[0].data.reduce((a,b)=>a+b,0) /
+            waitChart.data.datasets[0].data.length
+        );
+
+    document.getElementById("avgWait").innerText = avg + " sec";
+
+    // ⚙ Efficiency calculation
+    document.getElementById("efficiency").innerText =
+        Math.max(60, 100 - avg) + "%";
+}
+
+// ⏱ Update every 5 seconds
+setInterval(updateAdminDashboard, 5000);
 </script>
 
 
